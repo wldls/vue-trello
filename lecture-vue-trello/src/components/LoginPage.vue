@@ -63,7 +63,7 @@ export default {
           this.$router.push(this.$route.query.rPath || "/");
         })
         .catch(err => {
-          // console.log(err.response);
+          console.log(err);
           // this.error = err.data.error;
         });
     }
