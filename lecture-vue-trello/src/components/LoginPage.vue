@@ -15,35 +15,30 @@
       </div>
       <div>
         <label for="password">Passwrod</label>
-        <input
-          class="form-control"
-          type="password"
-          v-model="password"
-          placeholder="123123"
-        />
+        <input class="form-control" type="password" v-model="password" placeholder="123123" />
       </div>
       <button
         class="btn"
         :class="{ 'btn-success': !invalidForm }"
         type="submit"
         :disabled="invalidForm"
-      >
-        Log In
-      </button>
+      >Log In</button>
     </form>
     <p class="error" v-if="error">{{ error }}</p>
   </div>
 </template>
 
 <script>
-import { auth, setAuthInHeader } from "@/api/index";
+// import { auth, setAuthInHeader } from "@/api/index";
+import { mapActions } from "vuex";
 
 export default {
   data() {
     return {
       email: "",
       password: "",
-      error: ""
+      error: "",
+      rPath: ""
     };
   },
   computed: {
@@ -51,21 +46,18 @@ export default {
       return !this.email || !this.password;
     }
   },
+  created() {
+    this.rPath = this.$route.query.rPath || "/";
+  },
   methods: {
-    onSubmit() {
-      auth
-        .login(this.email, this.password)
-        .then(data => {
-          const token = data.accessToken;
-
-          localStorage.setItem("token", token);
-          setAuthInHeader(token);
-          this.$router.push(this.$route.query.rPath || "/");
-        })
-        .catch(err => {
-          console.log(err);
-          // this.error = err.data.error;
-        });
+    ...mapActions(["LOGIN"]),
+    async onSubmit() {
+      try {
+        await this.LOGIN({ email: this.email, password: this.password });
+        this.$router.push(this.rPath);
+      } catch (err) {
+        this.error = err.response.data.error;
+      }
     }
   }
 };

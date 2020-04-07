@@ -14,23 +14,17 @@
         </router-link>
       </div>
       <div class="board-item board-item-new">
-        <a
-          class="new-board-btn"
-          href=""
-          @click.prevent="SET_IS_ADD_BOARD(true)"
-        >
-          Create new board...
-        </a>
+        <a class="new-board-btn" href @click.prevent="setIsAddBoard(true)">Create new board...</a>
       </div>
     </div>
-    <add-board v-if="isAddBoard" @submit="onAddBoard"></add-board>
+    <add-board v-if="isAddBoard"></add-board>
   </div>
 </template>
 
 <script>
-import { board } from "@/api/index";
+// import { board } from "@/api/index";
 import AddBoard from "@/components/AddBoard";
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapMutations, mapActions } from "vuex";
 
 export default {
   components: {
@@ -39,12 +33,11 @@ export default {
   data() {
     return {
       loading: false,
-      boards: [],
       error: ""
     };
   },
   computed: {
-    ...mapState(["isAddBoard"])
+    ...mapState(["isAddBoard", "boards"])
   },
   created() {
     this.fetchData();
@@ -55,22 +48,13 @@ export default {
     });
   },
   methods: {
-    ...mapMutations(["SET_IS_ADD_BOARD"]),
-    fetchData() {
+    ...mapMutations(["setIsAddBoard"]),
+    ...mapActions(["FETCH_BOARDS"]),
+
+    async fetchData() {
       this.loading = true;
-      board
-        .fetch()
-        .then(data => {
-          this.boards = data.list;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    onAddBoard(title) {
-      board.create(title).then(() => {
-        this.fetchData();
-      });
+      await this.FETCH_BOARDS();
+      this.loading = false;
     }
   }
 };
