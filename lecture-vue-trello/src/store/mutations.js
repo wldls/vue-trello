@@ -20,6 +20,9 @@ const mutations = {
     state.token = null;
     delete localStorage.token;
     setAuthInHeader(null);
+  },
+  setCard(state, card) {
+    state.card = card;
   }
 };
 

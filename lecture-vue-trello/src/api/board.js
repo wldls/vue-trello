@@ -3,4 +3,6 @@ import { instance } from "./index";
 export const fetchBoardList = id =>
   id ? instance.get(`/boards/${id}`) : instance.get("/boards");
 export const createBoard = title => instance.post("/boards", { title });
-// export const fetchBoard = id => instance.get(`/boards/${id}`);
+export const createCard = data => instance.post("/cards", data);
+export const fetchCard = id => instance.get(`/cards/${id}`);
+export const editCard = (id, payload) => instance.put(`/cards/${id}`, payload);

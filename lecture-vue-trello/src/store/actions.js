@@ -1,14 +1,22 @@
 // import * as api from "@/api/index.js";
-import { createBoard, fetchBoardList } from "@/api/board";
+// import {
+//   createBoard,
+//   fetchBoardList,
+//   createCard,
+//   fetchCard,editCard
+// } from "@/api/board";
+
+import * as board from "@/api/board";
+
 import { loginAuth } from "@/api/auth";
 
 const actions = {
   async ADD_BOARD(_, { title }) {
-    const { data } = await createBoard(title);
+    const { data } = await board.createBoard(title);
     return data;
   },
   async FETCH_BOARDS({ commit }) {
-    const { data } = await fetchBoardList();
+    const { data } = await board.fetchBoardList();
     commit("setBoards", data.list);
   },
   async LOGIN({ commit }, { email, password }) {
@@ -16,8 +24,25 @@ const actions = {
     commit("login", data.accessToken);
   },
   async FETCH_BOARD({ commit }, id) {
-    const { data } = await fetchBoardList(id);
+    const { data } = await board.fetchBoardList(id);
     commit("setBoard", data.item);
+  },
+  async ADD_CARD({ dispatch, state }, createData) {
+    await board.createCard(createData);
+    // 보드 조회 api 호출
+    dispatch("FETCH_BOARD", state.board.id);
+  },
+  async FETCH_CARD({ commit }, id) {
+    const { data } = await board.fetchCard(id);
+    commit("setCard", data.item);
+  },
+  async EDIT_CARD(
+    { dispatch, state },
+    { id, title, description, pos, listId }
+  ) {
+    await board.editCard(id, { title, description, pos, listId });
+    // 보드 조회 api 호출
+    dispatch("FETCH_BOARD", state.board.id);
   }
 };
 

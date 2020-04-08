@@ -45,6 +45,10 @@ body,
   background-color: #5aac44;
   box-shadow: 0 1px 0 #519839;
 }
+.btn-success:disabled {
+  background-color: #999;
+  box-shadow: 0 1px 0 #999;
+}
 .form-control {
   width: 100%;
   box-sizing: border-box;

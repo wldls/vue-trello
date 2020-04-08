@@ -16,13 +16,8 @@
           </div>
         </div>
       </div>
-      <!-- <router-link :to="`/b/${$route.params.bid}/c/1`">go to card1</router-link> -->
-      <!-- <router-link :to="`/b/${$route.params.bid}/c/2`">go to card2</router-link> -->
     </div>
-    <hr />
-    <div>
-      <router-view></router-view>
-    </div>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -112,7 +107,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 300px;
+  height: 800px;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;

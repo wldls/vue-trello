@@ -3,18 +3,35 @@
     <div class="list-header">
       <div class="list-header-title">{{ data.title }}</div>
     </div>
-    <div>
-      <add-card></add-card>
+    <div class="card-list">
+      <card-item v-for="card in data.cards" :key="card.id" :data="card"></card-item>
+    </div>
+    <div v-if="isAddCard">
+      <add-card :listId="data.id" @close="onToggleCard"></add-card>
+    </div>
+    <div v-else>
+      <a href="#" class="add-card-btn" @click.prevent.stop="onToggleCard">&plus; Add a card..</a>
     </div>
   </div>
 </template>
 
 <script>
 import AddCard from "./AddCard";
+import CardItem from "./CardItem";
 
 export default {
-  components: { AddCard },
-  props: ["data"]
+  components: { AddCard, CardItem },
+  props: ["data"],
+  data() {
+    return {
+      isAddCard: false
+    };
+  },
+  methods: {
+    onToggleCard() {
+      this.isAddCard = !this.isAddCard;
+    }
+  }
 };
 </script>
 
@@ -54,7 +71,7 @@ export default {
 }
 .card-list {
   flex: 1 1 auto;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 .empty-card-item {
   height: 10px;
