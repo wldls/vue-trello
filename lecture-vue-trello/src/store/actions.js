@@ -43,6 +43,10 @@ const actions = {
     await board.editCard(id, { title, description, pos, listId });
     // 보드 조회 api 호출
     dispatch("FETCH_BOARD", state.board.id);
+  },
+  async DEL_CARD({ dispatch, state }, id) {
+    await board.delCard(id);
+    dispatch("FETCH_BOARD", state.board.id);
   }
 };
 

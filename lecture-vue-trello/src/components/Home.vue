@@ -14,7 +14,9 @@
         </router-link>
       </div>
       <div class="board-item board-item-new">
-        <a class="new-board-btn" href @click.prevent="setIsAddBoard(true)">Create new board...</a>
+        <a class="new-board-btn" href @click.prevent="setIsAddBoard(true)"
+          >Create new board...</a
+        >
       </div>
     </div>
     <add-board v-if="isAddBoard"></add-board>
@@ -41,6 +43,7 @@ export default {
   },
   created() {
     this.fetchData();
+    this.setTheme();
   },
   updated() {
     this.$refs.boardItem.forEach(el => {
@@ -48,7 +51,7 @@ export default {
     });
   },
   methods: {
-    ...mapMutations(["setIsAddBoard"]),
+    ...mapMutations(["setIsAddBoard", "setTheme"]),
     ...mapActions(["FETCH_BOARDS"]),
 
     async fetchData() {

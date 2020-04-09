@@ -9,7 +9,11 @@
           </div>
           <div class="list-section-wrapper">
             <div class="list-section">
-              <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
+              <div
+                class="list-wrapper"
+                v-for="list in board.lists"
+                :key="list.pos"
+              >
                 <List :data="list" />
               </div>
             </div>
@@ -22,8 +26,9 @@
 </template>
 
 <script>
+import { mapActions, mapMutations, mapState } from "vuex";
 import List from "./List";
-import { mapActions, mapState } from "vuex";
+import dragger from "@/utils/dragger";
 
 export default {
   components: {
@@ -31,22 +36,63 @@ export default {
   },
   data() {
     return {
-      loading: false
-      // item: null
+      loading: false,
+      cDragger: null
     };
   },
   computed: {
     ...mapState(["board"])
   },
-  created() {
-    this.fetchData();
+  async created() {
+    await this.fetchData();
+    console.log(this.board.bgColor);
+    this.setTheme(this.board.bgColor);
+  },
+  updated() {
+    this.setCardDragabble();
   },
   methods: {
-    ...mapActions(["FETCH_BOARD"]),
+    ...mapMutations(["setTheme"]),
+    ...mapActions(["FETCH_BOARD", "EDIT_CARD"]),
     async fetchData() {
       this.loading = true;
       await this.FETCH_BOARD(this.$route.params.bid);
       this.loading = false;
+    },
+    setCardDragabble() {
+      if (this.cDragger) this.cDragger.destroy();
+
+      this.cDragger = dragger.init(
+        Array.from(this.$el.querySelectorAll(".card-list"))
+      );
+
+      this.cDragger.on("drop", (el, wrapper, target, siblings) => {
+        const targetCard = {
+          id: el.dataset.cardId * 1,
+          pos: 65535
+        };
+
+        const { prev, next } = dragger.siblings({
+          el,
+          wrapper,
+          candidates: Array.from(wrapper.querySelectorAll(".card-item")),
+          type: "card"
+        });
+
+        // position 값 계산
+        if (!prev && next) {
+          // tartget card가 맨 앞에 있는 경우
+          targetCard.pos = next.pos / 2;
+        } else if (!next && prev) {
+          // target card가 맨 뒤에 있는 경우
+          targetCard.pos = prev.pos * 2;
+        } else if (prev && next) {
+          // target card가 중간에 있는 경우
+          targetCard.pos = (prev.pos + next.pos) / 2;
+        }
+
+        this.EDIT_CARD(targetCard);
+      });
     }
   }
 };
