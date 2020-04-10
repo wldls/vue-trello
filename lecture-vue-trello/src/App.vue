@@ -27,7 +27,9 @@ body,
 }
 .container {
   flex-grow: 1;
-  position: relative;
+  position: absolute;
+  width: 100%;
+  height: calc(100% - 40px);
 }
 .btn {
   border-radius: 3px;

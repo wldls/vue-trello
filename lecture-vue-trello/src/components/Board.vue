@@ -5,59 +5,95 @@
       <div class="board-wrapper">
         <div class="board">
           <div class="board-header">
-            <span class="board-title">{{ board.title }}</span>
+            <input
+              type="text"
+              class="form-control"
+              v-if="isEditTitle"
+              v-model="inputTitle"
+              @blur="onSubmitTitle"
+              @keyup.enter="onSubmitTitle"
+              ref="inputTitle"
+            />
+            <span v-else @click="onClickTitle" class="board-title">{{ board.title }}</span>
+            <a href class="board-header-btn show-menu" @click.prevent="onShowSettings">...show menu</a>
           </div>
           <div class="list-section-wrapper">
             <div class="list-section">
-              <div
-                class="list-wrapper"
-                v-for="list in board.lists"
-                :key="list.pos"
-              >
+              <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
                 <List :data="list" />
+              </div>
+              <div class="list-wrapper">
+                <add-list></add-list>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <board-setting v-if="isShowBoardSettings"></board-setting>
     </div>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
 import List from "./List";
+import BoardSetting from "./BoardSetting";
+import AddList from "./AddList";
+import { mapActions, mapMutations, mapState } from "vuex";
 import dragger from "@/utils/dragger";
 
 export default {
   components: {
-    List
+    List,
+    AddList,
+    BoardSetting
   },
   data() {
     return {
       loading: false,
-      cDragger: null
+      cDragger: null,
+      isEditTitle: false,
+      inputTitle: ""
     };
   },
   computed: {
-    ...mapState(["board"])
+    ...mapState(["board", "isShowBoardSettings"])
   },
   async created() {
     await this.fetchData();
-    console.log(this.board.bgColor);
+    this.inputTitle = this.board.title;
     this.setTheme(this.board.bgColor);
+    this.setIsShowBoardSettings(false);
   },
   updated() {
     this.setCardDragabble();
   },
   methods: {
-    ...mapMutations(["setTheme"]),
-    ...mapActions(["FETCH_BOARD", "EDIT_CARD"]),
+    ...mapMutations(["setTheme", "setIsShowBoardSettings"]),
+    ...mapActions(["FETCH_BOARD", "EDIT_CARD", "EDIT_BOARD"]),
     async fetchData() {
       this.loading = true;
       await this.FETCH_BOARD(this.$route.params.bid);
       this.loading = false;
+    },
+    onShowSettings() {
+      this.setIsShowBoardSettings(true);
+    },
+    onClickTitle() {
+      this.isEditTitle = true;
+      this.$nextTick(() => this.$refs.inputTitle.focus());
+    },
+    async onSubmitTitle() {
+      this.isEditTitle = false;
+      const inputTitle = this.inputTitle.trim();
+
+      if (!inputTitle) return;
+      if (inputTitle === this.board.title) return;
+
+      await this.EDIT_BOARD({
+        id: this.board.id,
+        title: inputTitle
+      });
     },
     setCardDragabble() {
       if (this.cDragger) this.cDragger.destroy();
@@ -66,7 +102,7 @@ export default {
         Array.from(this.$el.querySelectorAll(".card-list"))
       );
 
-      this.cDragger.on("drop", (el, wrapper, target, siblings) => {
+      this.cDragger.on("drop", (el, wrapper) => {
         const targetCard = {
           id: el.dataset.cardId * 1,
           pos: 65535
@@ -99,18 +135,18 @@ export default {
 </script>
 
 <style>
-.board-wrapper {
+/* .board-wrapper {
   position: absolute;
   top: 0;
   bottom: 0;
   right: 0;
   left: 0;
-}
-.board {
+} */
+/* .board {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
+} */
 .board-header {
   flex: none;
   padding: 8px 4px 8px 8px;
@@ -148,12 +184,11 @@ export default {
   position: relative;
 }
 .list-section {
-  position: absolute;
+  /* position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 800px;
+  bottom: 0; */
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;

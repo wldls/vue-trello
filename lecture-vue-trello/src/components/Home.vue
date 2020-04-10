@@ -14,9 +14,7 @@
         </router-link>
       </div>
       <div class="board-item board-item-new">
-        <a class="new-board-btn" href @click.prevent="setIsAddBoard(true)"
-          >Create new board...</a
-        >
+        <a class="new-board-btn" href @click.prevent="setIsAddBoard(true)">Create new board...</a>
       </div>
     </div>
     <add-board v-if="isAddBoard"></add-board>

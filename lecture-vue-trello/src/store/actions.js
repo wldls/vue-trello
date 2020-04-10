@@ -7,7 +7,7 @@
 // } from "@/api/board";
 
 import * as board from "@/api/board";
-
+import { createList } from "@/api/list";
 import { loginAuth } from "@/api/auth";
 
 const actions = {
@@ -26,6 +26,13 @@ const actions = {
   async FETCH_BOARD({ commit }, id) {
     const { data } = await board.fetchBoardList(id);
     commit("setBoard", data.item);
+  },
+  async DEL_BOARD(_, id) {
+    await board.delBoard(id);
+  },
+  async EDIT_BOARD({ dispatch, state }, { id, title, bgColor }) {
+    await board.editBoard(id, { title, bgColor });
+    dispatch("FETCH_BOARD", state.board.id);
   },
   async ADD_CARD({ dispatch, state }, createData) {
     await board.createCard(createData);
@@ -46,6 +53,10 @@ const actions = {
   },
   async DEL_CARD({ dispatch, state }, id) {
     await board.delCard(id);
+    dispatch("FETCH_BOARD", state.board.id);
+  },
+  async CREATE_LIST({ dispatch, state }, { title, boardId, pos }) {
+    await createList({ title, boardId, pos });
     dispatch("FETCH_BOARD", state.board.id);
   }
 };
