@@ -1,10 +1,20 @@
 <template>
-  <div class="list">
+  <div class="list" :data-list-id="data.id" :data-list-pos="data.pos">
     <div class="list-header">
-      <div class="list-header-title">{{ data.title }}</div>
+      <input
+        type="text"
+        v-if="isListEdit"
+        v-model="inputTitle"
+        @blur="onSubmit"
+        @keyup.enter="onSubmit"
+        ref="inputTitle"
+        class="form-control input-title"
+      />
+      <div v-else class="list-header-title" @click="onEditList">{{ data.title }}</div>
+      <a href="#" class="delete-list-btn" @click.prevent="onDeleteList">&times;</a>
     </div>
     <div class="card-list">
-      <card-item v-for="card in data.cards" :key="card.id" :data="card"></card-item>
+      <card-item v-for="card in data.cards" :key="card.id" :data="card">&times;</card-item>
     </div>
     <div v-if="isAddCard">
       <add-card :listId="data.id" @close="onToggleCard"></add-card>
@@ -18,18 +28,40 @@
 <script>
 import AddCard from "./AddCard";
 import CardItem from "./CardItem";
+import { mapActions } from "vuex";
 
 export default {
   components: { AddCard, CardItem },
   props: ["data"],
   data() {
     return {
-      isAddCard: false
+      isAddCard: false,
+      isListEdit: false,
+      inputTitle: ""
     };
   },
+  created() {
+    this.inputTitle = this.data.title;
+  },
   methods: {
+    ...mapActions(["EDIT_LIST", "DEL_LIST"]),
     onToggleCard() {
       this.isAddCard = !this.isAddCard;
+    },
+    onEditList() {
+      this.isListEdit = true;
+      this.$nextTick(() => {
+        this.$refs.inputTitle.focus();
+      });
+    },
+    async onSubmit() {
+      await this.EDIT_LIST({ id: this.data.id, title: this.inputTitle });
+      this.isListEdit = false;
+    },
+    async onDeleteList() {
+      if (window.confirm(`Delete ${this.data.title} list?`)) {
+        await this.DEL_LIST(this.data.id);
+      }
     }
   }
 };
@@ -57,6 +89,7 @@ export default {
   font-weight: 700;
   padding-left: 8px;
   line-height: 30px;
+  cursor: pointer;
 }
 .input-title {
   width: 90%;

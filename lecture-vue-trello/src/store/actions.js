@@ -7,7 +7,7 @@
 // } from "@/api/board";
 
 import * as board from "@/api/board";
-import { createList } from "@/api/list";
+import { createList, editList, delList } from "@/api/list";
 import { loginAuth } from "@/api/auth";
 
 const actions = {
@@ -57,6 +57,14 @@ const actions = {
   },
   async CREATE_LIST({ dispatch, state }, { title, boardId, pos }) {
     await createList({ title, boardId, pos });
+    dispatch("FETCH_BOARD", state.board.id);
+  },
+  async EDIT_LIST({ dispatch, state }, { id, title, pos }) {
+    await editList(id, { title, pos });
+    dispatch("FETCH_BOARD", state.board.id);
+  },
+  async DEL_LIST({ dispatch, state }, id) {
+    await delList(id);
     dispatch("FETCH_BOARD", state.board.id);
   }
 };

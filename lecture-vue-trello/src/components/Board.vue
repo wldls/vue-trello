@@ -19,7 +19,12 @@
           </div>
           <div class="list-section-wrapper">
             <div class="list-section">
-              <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
+              <div
+                class="list-wrapper"
+                v-for="list in board.lists"
+                :key="list.id"
+                :data-list-id="list.id"
+              >
                 <List :data="list" />
               </div>
               <div class="list-wrapper">
@@ -52,6 +57,7 @@ export default {
     return {
       loading: false,
       cDragger: null,
+      lDragger: null,
       isEditTitle: false,
       inputTitle: ""
     };
@@ -67,10 +73,11 @@ export default {
   },
   updated() {
     this.setCardDragabble();
+    this.setListDragabble();
   },
   methods: {
     ...mapMutations(["setTheme", "setIsShowBoardSettings"]),
-    ...mapActions(["FETCH_BOARD", "EDIT_CARD", "EDIT_BOARD"]),
+    ...mapActions(["FETCH_BOARD", "EDIT_CARD", "EDIT_BOARD", "EDIT_LIST"]),
     async fetchData() {
       this.loading = true;
       await this.FETCH_BOARD(this.$route.params.bid);
@@ -128,6 +135,46 @@ export default {
         }
 
         this.EDIT_CARD(targetCard);
+      });
+    },
+    setListDragabble() {
+      if (this.lDragger) this.lDragger.destroy();
+
+      const options = {
+        invalid: (el, handler) => !/^list/.test(handler.className)
+      };
+
+      this.lDragger = dragger.init(
+        Array.from(this.$el.querySelectorAll(".list-section")),
+        options
+      );
+
+      this.lDragger.on("drop", (el, wrapper) => {
+        const targetList = {
+          id: el.dataset.listId * 1,
+          pos: 65535
+        };
+
+        const { prev, next } = dragger.siblings({
+          el,
+          wrapper,
+          candidates: Array.from(wrapper.querySelectorAll(".list")),
+          type: "list"
+        });
+
+        // position 값 계산
+        if (!prev && next) {
+          // tartget card가 맨 앞에 있는 경우
+          targetList.pos = next.pos / 2;
+        } else if (!next && prev) {
+          // target card가 맨 뒤에 있는 경우
+          targetList.pos = prev.pos * 2;
+        } else if (prev && next) {
+          // target card가 중간에 있는 경우
+          targetList.pos = (prev.pos + next.pos) / 2;
+        }
+
+        this.EDIT_LIST(targetList);
       });
     }
   }

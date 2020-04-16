@@ -2,19 +2,14 @@ import dragula from "dragula";
 import "dragula/dist/dragula.min.css";
 
 const dragger = {
-  init(container) {
-    return dragula([...container]);
+  init(container, options) {
+    return dragula([...container], options);
   },
   siblings({ el, wrapper, candidates, type }) {
     const curId = el.dataset[type + "Id"] * 1;
 
     let prev = null;
     let next = null;
-
-    // const targetCard = {
-    //   id: el.dataset.cardId * 1,
-    //   pos: 65535
-    // };
 
     candidates.forEach((el, idx, arr) => {
       const id = el.dataset[type + "Id"] * 1;

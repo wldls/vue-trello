@@ -40,7 +40,7 @@ export default {
 
       if (!title) return;
 
-      await this.CREATE_LIST({ title, boardId: this.board.id, pos });
+      await this.CREATE_LIST({ title, boardId, pos });
       this.restore();
     },
     restore() {
